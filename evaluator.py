@@ -22,7 +22,7 @@ class Evaluator(object):
         ])
         self._loader = torch.utils.data.DataLoader(Dataset(path_to_lmdb_dir, transform), batch_size=32, shuffle=False)
 
-    def confusion_matrix(self, model):
+    def get_model_metrics(self, model):
         y_pred = []
         y_true = []
 
@@ -53,24 +53,21 @@ class Evaluator(object):
 
         matrix = confusion_matrix(y_true, y_pred,
                                   labels=["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"])
-        f1 = f1_score(y_true, y_pred, average="weighted")  # TODO - Ask David which average to use
+        report = classification_report(y_true, y_pred, output_dict=True)
+
+        f1 = f1_score(y_true, y_pred, average="weighted")
 
         precision = precision_score(y_true, y_pred, average="weighted")
         recall = recall_score(y_true, y_pred, average="weighted")
 
-        print("NEO -----")
-        print(matrix)
-
-        print("F1: ", f1)
-
-        print("precision: ", precision)
-        print("recall: ", recall)
-
-        report = classification_report(y_true, y_pred, output_dict=True)
-        print("REPORT")
-        print(report)
-
-
+        model_info = {
+           "confusion_matrix": matrix,
+           "classification_report": report,
+           "precision": precision,
+           "f1_score": f1,
+           "recall": recall,
+        }
+        return model_info
 
     def evaluate(self, model):
         num_correct = 0
