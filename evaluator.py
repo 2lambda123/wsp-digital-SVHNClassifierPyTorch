@@ -61,7 +61,7 @@ class Evaluator(object):
         recall = recall_score(y_true, y_pred, average="weighted")
 
         model_info = {
-           "confusion_matrix": matrix,
+           "confusion_matrix": matrix.tolist(),
            "classification_report": report,
            "precision": precision,
            "f1_score": f1,
