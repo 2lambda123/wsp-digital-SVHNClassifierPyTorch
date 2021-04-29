@@ -44,7 +44,7 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
     initial_learning_rate = training_options['learning_rate']
     initial_patience = training_options['patience']
     num_steps_to_show_loss = 100
-    num_steps_to_check = 1000
+    num_steps_to_check = 200
 
     step = 0
     patience = initial_patience
@@ -84,6 +84,11 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
     else:
         test_losses = np.empty([0], dtype=np.float32)
 
+    train_loss_array = []
+    val_loss_array = []
+    model_checkpoints = []
+    model_saved = False
+
     while True:
         for batch_idx, (images, length_labels, digits_labels, _) in enumerate(train_loader):
             start_time = time.time()
@@ -109,10 +114,12 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
 
             losses = np.append(losses, loss.item())
             np.save(path_to_losses_npy_file, losses)
+            train_loss_array.append((step, loss.item()))
 
             print('=> Evaluating on validation dataset...')
             accuracy, test_loss_args = evaluator.evaluate(model)
             test_loss = _loss(*test_loss_args)
+            val_loss_array.append((step, test_loss.item()))
 
             print('==> accuracy = %f, best accuracy %f' % (accuracy, best_accuracy))
             # print(f'==> loss = {test_loss}')
@@ -120,14 +127,31 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
             if accuracy > best_accuracy:
                 path_to_checkpoint_file = model.store(path_to_log_dir, step=step)
                 print('=> Model saved to file: %s' % path_to_checkpoint_file)
+                model_saved = True
+                model_checkpoints.append((step, f"model-{step}.pth"))
                 patience = initial_patience
                 best_accuracy = accuracy
             else:
                 patience -= 1
 
+            print("Train losses: ", train_loss_array)
+            print("Model Checkpoint: ", model_checkpoints)
+
             print('=> patience = %d' % patience)
             if patience == 0:
-                return
+                if not model_saved:
+                    path_to_checkpoint_file = model.store(path_to_log_dir, step=step)
+                    print('=> Model MANUALLY saved to file: %s' % path_to_checkpoint_file)
+                    model_checkpoints.append((step, f"model-{step}.pth"))
+
+                training_output = {
+                    "model_checkpoints": model_checkpoints,
+                    "train_losses": train_loss_array,
+                    "val_losses": val_loss_array,
+                }
+                print("TRAINING OUTPUT -----------------------------")
+                print(training_output)
+                return training_output
 
 
 def main(args):
@@ -147,9 +171,10 @@ def main(args):
         os.makedirs(path_to_log_dir)
 
     print('Start training')
-    _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
+    training_output = _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
            path_to_restore_checkpoint_file, training_options)
     print('Done')
+    return training_output
 
 
 if __name__ == '__main__':
