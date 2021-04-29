@@ -91,9 +91,18 @@ class Evaluator(object):
                 for metric, value in metrics.items():
                     metrics[metric] = round(value, 2)
 
+        # Add row/column totals to confusion matrix
+        matrix = matrix.tolist()
+        col_sums = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for row in matrix:
+            row.append(sum(row))
+            for idx, col in enumerate(row):
+                col_sums[idx] += col
+        matrix.append(col_sums)
+
         model_info = {
             "accuracy": round(accuracy, 2),
-            "confusion_matrix": matrix.tolist(),
+            "confusion_matrix": matrix,
             "classification_report": report,
             "precision": round(precision, 2),
             "f1_score": round(f1, 2),
