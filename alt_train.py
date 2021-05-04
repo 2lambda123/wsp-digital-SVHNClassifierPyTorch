@@ -146,8 +146,8 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
 
                 training_output = {
                     "model_checkpoints": model_checkpoints,
-                    "train_losses": train_loss_array,
-                    "val_losses": val_loss_array,
+                    "train_loss": train_loss_array,
+                    "val_loss": val_loss_array,
                 }
                 print("TRAINING OUTPUT -----------------------------")
                 print(training_output)
