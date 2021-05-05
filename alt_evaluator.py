@@ -26,7 +26,7 @@ class AltEvaluator(object):
         with torch.no_grad():
 
             for batch_idx, (images, length_labels, digits_labels, paths) in enumerate(self._loader):
-                images, length_labels, digits_labels = images.cpu(), length_labels.cpu(), [digit_labels.cpu() for digit_labels in digits_labels]
+                images, length_labels, digits_labels = images.cuda(), length_labels.cuda(), [digit_labels.cuda() for digit_labels in digits_labels]
                 length_logits, digit1_logits, digit2_logits, digit3_logits, digit4_logits, digit5_logits = model.eval()(images)
 
                 print("Evaluating images in batch: ", batch_idx + 1)

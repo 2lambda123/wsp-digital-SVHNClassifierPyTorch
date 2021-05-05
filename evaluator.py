@@ -29,7 +29,7 @@ class Evaluator(object):
 
         with torch.no_grad():
             for batch_idx, (images, length_labels, digits_labels, _) in enumerate(self._loader):
-                images, length_labels, digits_labels = images.cpu(), length_labels.cpu(), [digit_labels.cpu() for digit_labels in digits_labels]
+                images, length_labels, digits_labels = images.cuda(), length_labels.cuda(), [digit_labels.cuda() for digit_labels in digits_labels]
                 length_logits, digit1_logits, digit2_logits, digit3_logits, digit4_logits, digit5_logits = model.eval()(images)
 
                 # Predictions
@@ -116,7 +116,7 @@ class Evaluator(object):
 
         with torch.no_grad():
             for batch_idx, (images, length_labels, digits_labels, _) in enumerate(self._loader):
-                images, length_labels, digits_labels = images.cpu(), length_labels.cpu(), [digit_labels.cpu() for digit_labels in digits_labels]
+                images, length_labels, digits_labels = images.cuda(), length_labels.cuda(), [digit_labels.cuda() for digit_labels in digits_labels]
                 length_logits, digit1_logits, digit2_logits, digit3_logits, digit4_logits, digit5_logits = model.eval()(images)
 
                 if batch_idx == 0:
@@ -135,13 +135,13 @@ class Evaluator(object):
                                     digit2_prediction.eq(digits_labels[1]) &
                                     digit3_prediction.eq(digits_labels[2]) &
                                     digit4_prediction.eq(digits_labels[3]) &
-                                    digit5_prediction.eq(digits_labels[4])).cpu().sum()
+                                    digit5_prediction.eq(digits_labels[4])).cuda().sum()
                 else:
                     num_correct += (digit1_prediction.eq(digits_labels[0]) &
                                     digit2_prediction.eq(digits_labels[1]) &
                                     digit3_prediction.eq(digits_labels[2]) &
                                     digit4_prediction.eq(digits_labels[3]) &
-                                    digit5_prediction.eq(digits_labels[4])).cpu().sum()
+                                    digit5_prediction.eq(digits_labels[4])).cuda().sum()
 
         accuracy = num_correct.item() / len(self._loader.dataset)
         return accuracy, details
