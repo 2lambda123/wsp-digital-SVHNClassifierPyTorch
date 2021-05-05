@@ -18,7 +18,7 @@ def _eval(path_to_checkpoint_file, path_to_data_dir, path_to_log_dir, lmdb_file,
     path_to_eval_lmdb_dir = os.path.join(path_to_data_dir, lmdb_file)
     model = Model()
     model.restore(path_to_checkpoint_file)
-    model.cpu()
+    model.cuda()
     print(f'Evaluate {path_to_checkpoint_file} on {path_to_eval_lmdb_dir}')
     results = AltEvaluator(path_to_eval_lmdb_dir, number_of_images_to_evaluate).evaluate(model)
 
