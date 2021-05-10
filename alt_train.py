@@ -44,7 +44,7 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
     initial_learning_rate = training_options['learning_rate']
     initial_patience = training_options['patience']
     num_steps_to_show_loss = 100
-    num_steps_to_check = 200
+    num_steps_to_check = 1000
 
     step = 0
     patience = initial_patience
