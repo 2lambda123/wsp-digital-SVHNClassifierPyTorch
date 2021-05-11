@@ -89,6 +89,9 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
     model_checkpoints = []
     model_saved = False
 
+    # Used to save model (checkpoint) every 2 epochs
+    model_save_counter = 0
+
     while True:
         for batch_idx, (images, length_labels, digits_labels, _) in enumerate(train_loader):
             start_time = time.time()
@@ -112,6 +115,7 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
             if step % num_steps_to_check != 0:
                 continue
 
+            model_save_counter += 1
             losses = np.append(losses, loss.item())
             np.save(path_to_losses_npy_file, losses)
             train_loss_array.append((step, loss.item()))
@@ -124,9 +128,10 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
             print('==> accuracy = %f, best accuracy %f' % (accuracy, best_accuracy))
             # print(f'==> loss = {test_loss}')
 
-            if accuracy > best_accuracy:
+            if model_save_counter >= 2:
                 path_to_checkpoint_file = model.store(path_to_log_dir, step=step)
                 print('=> Model saved to file: %s' % path_to_checkpoint_file)
+                model_save_counter = 0
                 model_saved = True
                 model_checkpoints.append((step, f"model-{step}.pth"))
                 patience = initial_patience
