@@ -128,19 +128,22 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
             print('==> accuracy = %f, best accuracy %f' % (accuracy, best_accuracy))
             # print(f'==> loss = {test_loss}')
 
+            # Save model every 2 epochs
             if model_save_counter >= 2:
                 path_to_checkpoint_file = model.store(path_to_log_dir, step=step)
                 print('=> Model saved to file: %s' % path_to_checkpoint_file)
                 model_save_counter = 0
                 model_saved = True
                 model_checkpoints.append((step, f"model-{step}.pth"))
+
+            if accuracy > best_accuracy:
                 patience = initial_patience
                 best_accuracy = accuracy
             else:
                 patience -= 1
 
             print("Train losses: ", train_loss_array)
-            print("Model Checkpoint: ", model_checkpoints)
+            print("Saved Model Checkpoints: ", model_checkpoints)
 
             print('=> patience = %d' % patience)
             if patience == 0:
