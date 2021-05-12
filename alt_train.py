@@ -44,7 +44,7 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
     initial_learning_rate = training_options['learning_rate']
     initial_patience = training_options['patience']
     num_steps_to_show_loss = 100
-    num_steps_to_check = 1000
+    num_steps_to_check = training_options["validation_interval"]
 
     step = 0
     patience = initial_patience
@@ -172,7 +172,8 @@ def main(args):
         'learning_rate': args.learning_rate,
         'patience': args.patience,
         'decay_steps': args.decay_steps,
-        'decay_rate': args.decay_rate
+        'decay_rate': args.decay_rate,
+        "validation_interval": args.validation_interval
     }
 
     if not os.path.exists(path_to_log_dir):
