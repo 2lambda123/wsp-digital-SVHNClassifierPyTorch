@@ -129,7 +129,7 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
             # print(f'==> loss = {test_loss}')
 
             # Save model every 2 epochs
-            if model_save_counter >= 2:
+            if model_save_counter >= 2 or step == 1000:
                 path_to_checkpoint_file = model.store(path_to_log_dir, step=step)
                 print('=> Model saved to file: %s' % path_to_checkpoint_file)
                 model_save_counter = 0
