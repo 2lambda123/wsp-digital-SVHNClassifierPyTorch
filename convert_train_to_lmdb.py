@@ -162,9 +162,6 @@ def main(args):
     for path_to_dir in [path_to_train_lmdb_dir]:
         assert not os.path.exists(path_to_dir), 'LMDB directory %s already exists' % path_to_dir
 
-    print("CURRENT DIR: ")
-    print(os.listdir())
-
     print('Processing training and validation data...')
     # This function will put 90% of train data in train.lmdb and 10% in val.lmdb
     [num_train_examples, num_val_examples] = convert_to_lmdb([(path_to_train_dir, path_to_train_digit_struct_mat_file)],
