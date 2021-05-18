@@ -147,7 +147,7 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
             print("Saved Model Checkpoints: ", model_checkpoints)
 
             print('=> patience = %d' % patience)
-            if patience == 0:
+            if patience == 0 or step >= 17000:
                 if not model_saved:
                     path_to_checkpoint_file = model.store(path_to_log_dir, step=step)
                     print('=> Model MANUALLY saved to file: %s' % path_to_checkpoint_file)
