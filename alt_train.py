@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import time
 from datetime import datetime
@@ -146,7 +147,7 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
             print("Saved Model Checkpoints: ", model_checkpoints)
 
             print('=> patience = %d' % patience)
-            if patience == 0:
+            if patience == 0 or step >= 17000:
                 if not model_saved:
                     path_to_checkpoint_file = model.store(path_to_log_dir, step=step)
                     print('=> Model MANUALLY saved to file: %s' % path_to_checkpoint_file)
@@ -164,9 +165,10 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
 
 def main(args):
     path_to_train_lmdb_dir = os.path.join(args.data_dir, 'train.lmdb')
-    path_to_val_lmdb_dir = os.path.join(args.data_dir, 'val.lmdb')
+    path_to_val_lmdb_dir = args.validation_set
     path_to_log_dir = args.logdir
     path_to_restore_checkpoint_file = args.restore_checkpoint
+    path_to_lmdb_json = os.path.join(args.data_dir, "lmdb_meta.json")
     training_options = {
         'batch_size': args.batch_size,
         'learning_rate': args.learning_rate,
@@ -182,6 +184,11 @@ def main(args):
     print('Start training')
     training_output = _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
            path_to_restore_checkpoint_file, training_options)
+
+    # Num of samples trained
+    with open(path_to_lmdb_json) as meta_file:
+        data = json.load(meta_file)
+        training_output["number_of_samples"] = data["num_examples"]["train"]
     print('Done')
     return training_output
 
