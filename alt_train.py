@@ -40,7 +40,7 @@ def _loss(length_logits, digit1_logits, digit2_logits, digit3_logits, digit4_log
 
 
 def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
-           path_to_restore_checkpoint_file, training_options):
+           path_to_restore_checkpoint_file, training_options, max_steps):
     batch_size = training_options['batch_size']
     initial_learning_rate = training_options['learning_rate']
     initial_patience = training_options['patience']
@@ -147,7 +147,7 @@ def _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
             print("Saved Model Checkpoints: ", model_checkpoints)
 
             print('=> patience = %d' % patience)
-            if patience == 0 or step >= 17000:
+            if patience == 0 or step >= max_steps:
                 if not model_saved:
                     path_to_checkpoint_file = model.store(path_to_log_dir, step=step)
                     print('=> Model MANUALLY saved to file: %s' % path_to_checkpoint_file)
@@ -177,13 +177,18 @@ def main(args):
         'decay_rate': args.decay_rate,
         "validation_interval": args.validation_interval
     }
+    training_number = args.training_number
+
+    max_steps=17000
+    if training_number<=5:
+        max_steps = 5000
 
     if not os.path.exists(path_to_log_dir):
         os.makedirs(path_to_log_dir)
 
     print('Start training')
     training_output = _train(path_to_train_lmdb_dir, path_to_val_lmdb_dir, path_to_log_dir,
-           path_to_restore_checkpoint_file, training_options)
+           path_to_restore_checkpoint_file, training_options, max_steps)
 
     # Num of samples trained
     with open(path_to_lmdb_json) as meta_file:
